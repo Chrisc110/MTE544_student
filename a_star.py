@@ -216,6 +216,101 @@ def search_PRM(points, prm, start, end):
 
     path_points = []
 
-    ...
+    # Initialize both yet_to_visit and visited list
+    # in this list we will put all node that are yet_to_visit for exploration. 
+    # From here we will find the lowest cost node to expand next
+    yet_to_visit_dict = {} # will save the node, key is the position (tuple)
+    # # in this list we will put all node those already explored so that we don't explore it again    
+    visited_dict = {}      # only save the True values, key is the position (tuple)
+
+    # Add the start node
+    yet_to_visit_dict[start_node.position] = start_node
     
-    return path_points
+    # Adding a stop condition. This is to avoid any infinite loop and stop 
+    # execution after some reasonable number of steps
+    outer_iterations = 0
+    max_iterations = 1
+
+    """
+        1) We first get the current node by comparing all f cost and selecting the lowest cost node for further expansion
+        2) Check max iteration reached or not . Set a message and stop execution
+        3) Remove the selected node from yet_to_visit list and add this node to visited list
+        4) Perofmr Goal test and return the path else perform below steps
+        5) For selected node find out all children (use move to find children)
+            a) get the current postion for the selected node (this becomes parent node for the children)
+            b) check if a valid position exist (boundary will make few nodes invalid)
+            c) if any node is a wall then ignore that
+            d) add to valid children node list for the selected parent
+            
+            For all the children node
+                a) if child in visited list then ignore it and try next node
+                b) calculate child node g, h and f values
+                c) if child in yet_to_visit list then ignore it
+                d) else move the child to yet_to_visit list
+    """
+
+    # Loop until you find the end
+    
+    while len(yet_to_visit_dict) > 0:
+        
+        # Every time any node is referred from yet_to_visit list, counter of limit operation incremented
+        outer_iterations += 1    
+        
+        # Get the current node
+        current_node_position = (-999, -999)
+        current_node = Node(None, tuple(current_node_position))
+        current_node.f = 999999
+        for i_position in yet_to_visit_dict.keys():
+            i_node = yet_to_visit_dict[i_position] ## first is g, second is f
+            if i_node.f < current_node.f: ## compare the f
+                current_node = i_node
+                
+        # if we hit this point return the path such as it may be no solution or 
+        # computation cost is too high
+        if outer_iterations > max_iterations:
+            print ("giving up on pathfinding too many iterations")
+            return path_points
+
+        # Pop current node out off yet_to_visit list, add to visited list
+        yet_to_visit_dict.pop(current_node.position)
+        visited_dict[current_node.position] = True
+        path_points.append(current_node.position)
+
+        # test if goal is reached or not, if yes then return the path
+        if current_node == end_node:
+            print ("Goal reached")
+            return path_points
+
+        # Generate children from all adjacent squares
+        children = []
+        cur_idx = points.index(tuple(current_node.position))
+
+        for node_idx in prm[cur_idx]:
+            node_position = points[node_idx]
+            new_node = Node(current_node, node_position)
+            children.append(new_node)
+
+        for child in children:
+  
+            # Child is on the visited list (search entire visited list)
+            if visited_dict.get(child.position, False):
+                continue
+
+            # Create the f, g, and h values
+            child.g = current_node.g + sqrt(((child.position[0] - current_node.position[0]) ** 2) + 
+                                           ((child.position[1] - current_node.position[1]) ** 2))
+            ## Heuristic costs calculated here, this is using eucledian distance
+            child.h = sqrt(((child.position[0] - end_node.position[0]) ** 2) + 
+                       ((child.position[1] - end_node.position[1]) ** 2)) 
+
+            child.f = child.g + child.h
+
+            # Child is already in the yet_to_visit list and g cost is already lower
+            child_node_in_yet_to_visit = yet_to_visit_dict.get(child.position, False)
+            if (child_node_in_yet_to_visit is not False) and (child.g >= child_node_in_yet_to_visit.g):
+                continue
+
+            # Add the child to the yet_to_visit list
+            yet_to_visit_dict[child.position] = child
+
+    # return path_points
