@@ -43,6 +43,22 @@ def return_path(current_node,maze):
 
     return path
 
+def return_path_prm(points, current_node):
+    path = []
+    # here we create the initialized result maze with -1 in every position
+    current = current_node
+    while current is not None:
+        path.append(points[current.position])
+        current = current.parent
+    # Return reversed path as we need to show from start to end path
+    path = path[::-1]
+    start_value = 0
+    # we update the path of start to end found by A-star serch with every step incremented by 1
+    for i in range(len(path)):
+        start_value += 1
+
+    return path
+
 # Default search on a grid maze (implementation of Lab4)
 def search(maze, start, end, scale_factor):
     """
@@ -229,7 +245,7 @@ def search_PRM(points, prm, start, end):
     # Adding a stop condition. This is to avoid any infinite loop and stop 
     # execution after some reasonable number of steps
     outer_iterations = 0
-    max_iterations = 1
+    max_iterations = 1000
 
     """
         1) We first get the current node by comparing all f cost and selecting the lowest cost node for further expansion
@@ -269,24 +285,22 @@ def search_PRM(points, prm, start, end):
         # computation cost is too high
         if outer_iterations > max_iterations:
             print ("giving up on pathfinding too many iterations")
-            return path_points
+            return return_path_prm(points, current_node)
 
         # Pop current node out off yet_to_visit list, add to visited list
         yet_to_visit_dict.pop(current_node.position)
         visited_dict[current_node.position] = True
-        path_points.append(current_node.position)
 
         # test if goal is reached or not, if yes then return the path
         if current_node == end_node:
             print ("Goal reached")
-            return path_points
+            return return_path_prm(points, current_node)
 
         # Generate children from all adjacent squares
         children = []
-        cur_idx = points.index(tuple(current_node.position))
 
-        for node_idx in prm[cur_idx]:
-            node_position = points[node_idx]
+        for node_idx in prm[current_node.position]:
+            node_position = node_idx
             new_node = Node(current_node, node_position)
             children.append(new_node)
 
@@ -295,13 +309,12 @@ def search_PRM(points, prm, start, end):
             # Child is on the visited list (search entire visited list)
             if visited_dict.get(child.position, False):
                 continue
-
             # Create the f, g, and h values
-            child.g = current_node.g + sqrt(((child.position[0] - current_node.position[0]) ** 2) + 
-                                           ((child.position[1] - current_node.position[1]) ** 2))
+            child.g = current_node.g + sqrt(((points[child.position][0] - points[current_node.position][0]) ** 2) + 
+                                           ((points[child.position][1] - points[current_node.position][1]) ** 2))
             ## Heuristic costs calculated here, this is using eucledian distance
-            child.h = sqrt(((child.position[0] - end_node.position[0]) ** 2) + 
-                       ((child.position[1] - end_node.position[1]) ** 2)) 
+            child.h = sqrt(((points[child.position][0] - points[end_node.position][0]) ** 2) + 
+                       ((points[child.position][1] - points[end_node.position][1]) ** 2)) 
 
             child.f = child.g + child.h
 

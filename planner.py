@@ -48,8 +48,9 @@ class planner:
         # Hint: see the example of the ASTAR case below, there is no scaling factor for PRM
         if type == PRM_PLANNER:
             start_time = time.time()
-            sample_points, roadmap = prm_graph(startPose, endPose, self.obstaclesList, 1, m_utilities=self.m_utilities)
-            path = search_PRM(sample_points, roadmap, startPose, endPose)
+            sample_points, roadmap = prm_graph(startPose, endPose, self.obstaclesListCell, 0.16, m_utilities=self.m_utilities)
+            path_ = search_PRM(sample_points, roadmap, startPose, endPose)
+            print(f"PATH_: {path_}")
             end_time = time.time()
         elif type == ASTAR_PLANNER: # This is the same planner you should have implemented for Lab4
             scale_factor = 4 # Depending on resolution, this can be smaller or larger
