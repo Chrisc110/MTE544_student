@@ -50,7 +50,6 @@ class planner:
             start_time = time.time()
             sample_points, roadmap = prm_graph(startPose, endPose, self.obstaclesListCell, 0.16, m_utilities=self.m_utilities)
             path_ = search_PRM(sample_points, roadmap, startPose, endPose)
-            print(f"PATH_: {path_}")
             end_time = time.time()
         elif type == ASTAR_PLANNER: # This is the same planner you should have implemented for Lab4
             scale_factor = 4 # Depending on resolution, this can be smaller or larger
@@ -66,16 +65,20 @@ class planner:
             print(f"the time took for a_star calculation was {end_time - start_time}")
 
             path_ = [[x*scale_factor, y*scale_factor] for x,y in path ]
-
+        
+        print(f"Execution time: {end_time-start_time}s")
+        print(f"PATH_: {path_}")
         Path = np.array(list(map(self.m_utilities.cell_2_position, path_ )))
 
         # Plot the generated path
-        plt.plot(self.obstaclesList[:,0], self.obstaclesList[:,1], '.')
-        plt.plot(Path[:,0], Path[:,1], '-*')
-        plt.plot(startPoseCart[0],startPoseCart[1],'*')
+        plt.plot(self.obstaclesList[:,0], self.obstaclesList[:,1], '.', label="Obsticle")
+        plt.plot(Path[:,0], Path[:,1], '-*', label="Path")
+        plt.plot(startPoseCart[0],startPoseCart[1],'*', label="Start")
         plt.plot(endPoseCart[0],
-                 endPoseCart[1], '*')
-
+                 endPoseCart[1], '*', label="Goal")
+        plt.title("A* Path")
+        plt.legend(loc='upper right')  # Set a fixed location for the legend
+        plt.legend()
         plt.show()
         
         return Path.tolist()

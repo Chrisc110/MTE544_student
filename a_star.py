@@ -43,6 +43,7 @@ def return_path(current_node,maze):
 
     return path
 
+# New function to return path for PRM, based on original function above
 def return_path_prm(points, current_node):
     path = []
     # here we create the initialized result maze with -1 in every position
@@ -157,9 +158,10 @@ def search(maze, start, end, scale_factor):
         # test if goal is reached or not, if yes then return the path
         if current_node == end_node:
             print ("Goal reached")
+            print(f"Total Cost: {current_node.g}")
             return return_path(current_node,maze)
 
-        # Generate children from all adjacent squares
+        # Generate children from all adjacent squaresF
         children = []
 
         for new_position in move: 
@@ -294,6 +296,7 @@ def search_PRM(points, prm, start, end):
         # test if goal is reached or not, if yes then return the path
         if current_node == end_node:
             print ("Goal reached")
+            print(f"Total Cost: {current_node.g}")
             return return_path_prm(points, current_node)
 
         # Generate children from all adjacent squares
